@@ -13,21 +13,11 @@ import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
-class CustomClock : View {
-
-    constructor(context: Context?) : this(context, null)
-    constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0) {
-        setupAttributes(attrs)
-    }
-
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr,
-        0
-    ) {
-        setupAttributes(attrs)
-    }
+class CustomClock @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
     private var mPaint: Paint = Paint()
     private var mHeight: Int = 0
@@ -44,6 +34,20 @@ class CustomClock : View {
     private var hourHandColor = ContextCompat.getColor(context, R.color.purple_700)
     private var minuteHandColor = ContextCompat.getColor(context, R.color.teal_200)
     private var secondHandColor = ContextCompat.getColor(context, R.color.purple_200)
+
+    init {
+        val typedArray: TypedArray =
+            context.theme.obtainStyledAttributes(attrs, R.styleable.CustomClock, 0, 0)
+
+        hourHandColor =
+            typedArray.getColor(R.styleable.CustomClock_hourHandColor, hourHandColor)
+        minuteHandColor =
+            typedArray.getColor(R.styleable.CustomClock_minuteHandColor, minuteHandColor)
+        secondHandColor =
+            typedArray.getColor(R.styleable.CustomClock_secondHandColor, secondHandColor)
+
+        typedArray.recycle()
+    }
 
     private val handSize = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, 4f, context.resources.displayMetrics
@@ -65,32 +69,6 @@ class CustomClock : View {
 
         postInvalidateDelayed(1000)
         invalidate()
-
-
-    }
-
-    private fun setupAttributes(attrs: AttributeSet?) {
-
-        val typedArray: TypedArray =
-            context.theme.obtainStyledAttributes(attrs, R.styleable.CustomClock, 0, 0)
-
-        hourHandColor =
-            typedArray.getColor(R.styleable.CustomClock_hourHandColor, hourHandColor)
-        minuteHandColor =
-            typedArray.getColor(R.styleable.CustomClock_minuteHandColor, minuteHandColor)
-        secondHandColor =
-            typedArray.getColor(R.styleable.CustomClock_secondHandColor, secondHandColor)
-
-        typedArray.recycle()
-    }
-
-    private fun calcXYForPosition(pos: Float, rad: Float, skipAngle: Int): ArrayList<Float> {
-        val result = ArrayList<Float>(2)
-        val startAngle = 270f
-        val angle = startAngle + (pos * skipAngle)
-        result.add(0, (rad * cos(angle * Math.PI / 180) + width / 2).toFloat())
-        result.add(1, (height / 2 + rad * sin(angle * Math.PI / 180)).toFloat())
-        return result
     }
 
     private fun initialize() {
@@ -135,6 +113,15 @@ class CustomClock : View {
             canvas.drawCircle(xyData[0], xyData[1], pointRadius, mPaint)
         }
         mPaint.reset()
+    }
+
+    private fun calcXYForPosition(pos: Float, rad: Float, skipAngle: Int): ArrayList<Float> {
+        val result = ArrayList<Float>(2)
+        val startAngle = 270f
+        val angle = startAngle + (pos * skipAngle)
+        result.add(0, (rad * cos(angle * Math.PI / 180) + width / 2).toFloat())
+        result.add(1, (height / 2 + rad * sin(angle * Math.PI / 180)).toFloat())
+        return result
     }
 
     private fun drawHands(canvas: Canvas) {
