@@ -62,9 +62,15 @@ class CustomClock : View {
         drawClockShape(canvas)
         drawIndicatorMark(canvas)
         drawHands(canvas)
+
+        postInvalidateDelayed(1000)
+        invalidate()
+
+
     }
 
     private fun setupAttributes(attrs: AttributeSet?) {
+
         val typedArray: TypedArray =
             context.theme.obtainStyledAttributes(attrs, R.styleable.CustomClock, 0, 0)
 
@@ -139,8 +145,6 @@ class CustomClock : View {
         drawHandLine(canvas, calendar.get(Calendar.MINUTE).toFloat(), HandType.MINUTE)
         drawHandLine(canvas, calendar.get(Calendar.SECOND).toFloat(), HandType.SECONDS)
 
-        postInvalidateDelayed(500)
-        invalidate()
         mPaint.reset()
     }
 
